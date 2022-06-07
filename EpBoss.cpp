@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ShootingGame.h"
+#include "EpShootingGame.h"
 #include "EpBoss.h"
 #include <math.h>
 #ifdef _DEBUG
@@ -64,6 +64,7 @@ short EpBoss::CheckAndDraw(POINT mp)
 
 void EpBoss::Move()
 {
+	// 보스 패턴
 	switch(m_iMoveStyle)
 	{
 	case 0:

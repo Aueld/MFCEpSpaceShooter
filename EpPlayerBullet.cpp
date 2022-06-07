@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ShootingGame.h"
+#include "EpShootingGame.h"
 #include "EpPlayerBullet.h"
 #include <math.h>
 

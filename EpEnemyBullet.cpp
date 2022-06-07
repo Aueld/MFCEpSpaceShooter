@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ShootingGame.h"
+#include "EpShootingGame.h"
 #include "EpEnemyBullet.h"
 #include <math.h>
 
@@ -51,7 +51,7 @@ short EpEnemyBullet::CheckAndDraw(POINT mp)
 
 void EpEnemyBullet::Draw()
 {
-	m_backDC->BitBlt(m_point.x, m_point.y,9,18,&m_memDC,0,0, SRCCOPY);	
+	m_backDC->BitBlt(m_point.x, m_point.y,16,16,&m_memDC,0,0, SRCCOPY);	
 }
 
 void EpEnemyBullet::Move()

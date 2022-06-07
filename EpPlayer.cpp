@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ShootingGame.h"
+#include "EpShootingGame.h"
 #include "EpPlayer.h"
 #include <math.h>
 
@@ -11,8 +11,9 @@ static char THIS_FILE[]=__FILE__;
 
 EpPlayer::EpPlayer()
 {
-	m_mpWidth = 20;
-	m_mpHeight = 31;
+	// 비행기 이미지 크기
+	m_mpWidth = 32;
+	m_mpHeight = 32;
 }
 
 EpPlayer::~EpPlayer()
@@ -46,7 +47,7 @@ void EpPlayer::CheckAndDraw(POINT mp)
 
 void EpPlayer::Draw()
 {
-	m_backDC->BitBlt(m_point.x, m_point.y,20,31,&m_memDC,0,0, SRCCOPY);	
+	m_backDC->BitBlt(m_point.x, m_point.y,m_mpWidth, m_mpHeight,&m_memDC,0,0, SRCCOPY);	
 }
 
 void EpPlayer::ChgToCrashedStat()
