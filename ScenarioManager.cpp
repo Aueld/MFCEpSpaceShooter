@@ -108,7 +108,7 @@ void CScenarioManager::MakeFormation(int iStyle)
 		AddEnemy(iStyle,-180,0);
 		break;
 	case 7:
-		AddKing(iStyle,0,0);
+		AddBoss(iStyle,0,0);
 		break;
 	}
 }
@@ -192,16 +192,16 @@ void CScenarioManager::AddEnemy(int iStyle, int x, int y)
 {
 	//CEnemyObj *anEnemy = new CEnemyObj();
 	//anEnemy->GiveAtt(iStyle,x,y,m_backDC, m_arEB);
-	EpEnemyPlane *anEP = new EpEnemyPlane();
-	anEP->GiveAtt(iStyle,x,y,m_backDC, m_arEB);
-	m_arE->Add(anEP);
+	EpEnemyPlane *enemy = new EpEnemyPlane();
+	enemy->GiveAtt(iStyle,x,y,m_backDC, m_arEB);
+	m_arE->Add(enemy);
 }
 
-void CScenarioManager::AddKing(int iStyle, int x, int y)
+void CScenarioManager::AddBoss(int iStyle, int x, int y)
 {
 	//CEnemyObj *anEnemy = new CEnemyObj();
 	//anEnemy->GiveAtt(iStyle,x,y,m_backDC, m_arEB);
-	EpBoss *anK = new EpBoss();
-	anK->GiveAtt(iStyle,x,y,m_backDC, m_arEB);
-	m_arE->Add(anK);
+	EpBoss *boss = new EpBoss();
+	boss->GiveAtt(iStyle,x,y,m_backDC, m_arEB);
+	m_arE->Add(boss);
 }

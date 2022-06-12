@@ -16,6 +16,7 @@ EpEnemyObj::EpEnemyObj()
 	m_bmpECrashed.LoadBitmap(IDB_ECRASHED);
 	m_bmpECrashed1.LoadBitmap(IDB_ECRASHED1);
 	m_crashedTime = 0;
+	m_check = false;
 }
 
 EpEnemyObj::~EpEnemyObj()
@@ -25,7 +26,7 @@ EpEnemyObj::~EpEnemyObj()
 
 void EpEnemyObj::Draw()
 {
-	m_backDC->BitBlt(m_point.x, m_point.y, m_objWidth, m_objHeight, &m_memDC, 0, 0, SRCCOPY);	
+	m_backDC->BitBlt(m_point.x, m_point.y, m_objWidth, m_objHeight, &m_memDC, 0, 0, SRCCOPY);
 }
 
 short EpEnemyObj::CheckAndDraw(POINT mp)
@@ -76,7 +77,10 @@ short EpEnemyObj::Attacked()
 	case 0:
 		return 0;
 	case 1:
-		return ((EpBoss *)this)->DiminishPersistence();
+		if(((EpBoss*)this)->CheckHP())
+			m_check = true;
+
+		return ((EpBoss *)this)->Hit();
 	case 2:
 		return 1;
 	}

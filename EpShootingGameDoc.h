@@ -13,20 +13,15 @@ protected:
 	DECLARE_DYNCREATE(EpShootingGameDoc);
 
 public:
-
-public:
 	public:
 	virtual BOOL OnNewDocument();
 	virtual void Serialize(CArchive& ar);
 
-public:
 	virtual ~EpShootingGameDoc();
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 #endif
-
-protected:
 
 protected:
 

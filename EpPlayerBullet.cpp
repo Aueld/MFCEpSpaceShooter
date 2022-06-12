@@ -33,6 +33,7 @@ short EpPlayerBullet::CheckAndDraw()
 {
 	Move();
 	Draw();
+
 	for(int i = 0; i < m_arE->GetSize(); i++)
 	{
 		if((m_arE->GetAt(i)->m_point.x >= m_point.x && m_arE->GetAt(i)->m_point.x - m_point.x < 5 
@@ -51,13 +52,15 @@ short EpPlayerBullet::CheckAndDraw()
 
 	}
 
-	if(m_point.y < 0) return 1;
+	if(m_point.y < 0)
+		return 1;
+
 	return 0;
 }
 
 void EpPlayerBullet::Draw()
 {
-	m_backDC->BitBlt(m_point.x, m_point.y,5,20,&m_memDC,0,0, SRCCOPY);	
+	m_backDC->BitBlt(m_point.x + 14.5, m_point.y, 5, 7,&m_memDC,0,0, SRCCOPY);	
 }
 
 void EpPlayerBullet::Move()

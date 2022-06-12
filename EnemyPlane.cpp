@@ -13,8 +13,8 @@ EpEnemyPlane::EpEnemyPlane()
 	m_specify = 0;
 
 	// Àû Å©±â
-	m_objWidth = 18;
-	m_objHeight = 18;
+	m_objWidth = 16;
+	m_objHeight = 14;
 }
 
 EpEnemyPlane::~EpEnemyPlane()
@@ -84,7 +84,7 @@ void EpEnemyPlane::GiveAtt(int iStyle, long x, long y, CDC *backDC, CArray<EpEne
 	m_bmpE.LoadBitmap(IDB_E_G);
 	m_memDC.CreateCompatibleDC(backDC);
 	m_memDC.SelectObject(&m_bmpE);
-	m_arEB = arEB;
+	m_enemyBullet = arEB;
 }
 
 short EpEnemyPlane::CheckAndDraw(POINT mp)
@@ -100,7 +100,7 @@ short EpEnemyPlane::CheckAndDraw(POINT mp)
 	{
 		EpEnemyBullet *eb = new EpEnemyBullet();
 		eb->GiveAtt(m_iMoveStyle, mp, m_point, m_backDC);
-		m_arEB->Add(eb);
+		m_enemyBullet->Add(eb);
 	}
 
 	if(m_iLifeNowTime >= m_iLifeMax)

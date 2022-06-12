@@ -11,14 +11,14 @@ public:
 	CScenarioManager();
 	virtual ~CScenarioManager();
 	void Unfold(long timeCnt);
-	CDC		*m_backDC;
+	CDC	*m_backDC;
 
 	CArray<EpEnemyObj*, EpEnemyObj*> *m_arE;
 	CArray<EpEnemyBullet*, EpEnemyBullet*> *m_arEB;
 
 private:
 	void AddEnemy(int iStyle, int x, int y);
-	void AddKing(int iStyle, int x, int y);
+	void AddBoss(int iStyle, int x, int y);
 	void MakeFormation(int iStyle);
 };
 

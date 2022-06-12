@@ -10,10 +10,12 @@ static char THIS_FILE[]=__FILE__;
 
 EpBoss::EpBoss()
 {
+	m_check = false;
+
 	m_specify = 1;
 	m_objWidth = 97;
 	m_objHeight = 97;
-	m_iPersistence = 1000;
+	m_bossHP = 1000;
 }
 
 EpBoss::~EpBoss()
@@ -33,38 +35,52 @@ void EpBoss::GiveAtt(int iStyle, long x, long y, CDC *backDC, CArray<EpEnemyBull
 	m_iLifeNowTime = 0;
 	m_point.x = m_ox = x;
 	m_point.y = m_oy = y;
+
 	m_backDC = backDC;
 	m_bmpE.LoadBitmap(IDB_EK_G);
 	m_memDC.CreateCompatibleDC(backDC);
 	m_memDC.SelectObject(&m_bmpE);
-	m_arEB = arEB;
+	m_enemyBullet = arEB;
 }
 
 short EpBoss::CheckAndDraw(POINT mp)
 {
 	m_iLifeNowTime++;
+
 	Move();
 	Draw();
+
 	if((mp.x < m_point.x && m_point.x - mp.x < 20 || mp.x >= m_point.x && mp.x - m_point.x < m_objWidth)
 		&& (mp.y < m_point.y && m_point.y - mp.y < 31 || mp.y >= m_point.y && mp.y - m_point.y < m_objHeight))
 		return -1;
+	
 	int iRand = rand() * m_iShootInterval / RAND_MAX;
+	
 	if(iRand == 0)
 	{
 		EpEnemyBullet *eb = new EpEnemyBullet();
-		eb->GiveAtt(m_iMissileSpeed, mp, m_point, m_backDC);
-		m_arEB->Add(eb);
+		
+		m_cPoint = m_point;
+
+		m_cPoint.x += m_objWidth / 2 - 9;
+		m_cPoint.y += m_objHeight / 2;
+
+		eb->GiveAtt(m_iMissileSpeed, mp, m_cPoint, m_backDC);
+
+		m_enemyBullet->Add(eb);
 	}
+	
 	/*
 	if(m_iLifeNowTime >= m_iLifeMax)
 		return 1;
 	*/
+	
 	return 0;
 }
 
 void EpBoss::Move()
 {
-	// 보스 패턴
+	// 보스 이동 패턴
 	switch(m_iMoveStyle)
 	{
 	case 0:
@@ -88,47 +104,61 @@ void EpBoss::Move()
 	case 2:
 		m_iShootInterval = 15;
 		m_iMissileSpeed = 9;
-		if(m_iLifeNowTime > 450)
+		if(m_iLifeNowTime > 400)
 			m_iMoveStyle++;
 		break;
 	case 3:
 		POINT p;
 
 		m_iShootInterval = 1000;
+
+		m_cPoint = m_point;
+
+		m_cPoint.x += m_objWidth / 2 - 9;
+		m_cPoint.y += m_objHeight / 2;
+
 		p.x = cos(m_ang + m_dang * m_iLifeNowTime) * 100 + m_point.x;
 		p.y = sin(m_ang + m_dang * m_iLifeNowTime) * 100 + m_point.y;
-		m_arEB->Add(new EpEnemyBullet());
-		m_arEB->GetAt(m_arEB->GetSize() - 1)->GiveAtt(m_iMissileSpeed, p, m_point, m_backDC);
+		m_enemyBullet->Add(new EpEnemyBullet());
+		m_enemyBullet->GetAt(m_enemyBullet->GetSize() - 1)->GiveAtt(m_iMissileSpeed, p, m_cPoint, m_backDC);
 		if(m_iLifeNowTime > 600)
 			m_iMoveStyle++;
 			m_rad = 0;
 		break;
 	case 4:
 		m_iShootInterval = 9;
+
 		m_point.x = cos(m_ang + m_dang * m_iLifeNowTime) * m_rad + m_ox;
 		m_point.y = sin(m_ang + m_dang * m_iLifeNowTime) * m_rad + m_oy;
 		m_rad++;
-		if(m_iLifeNowTime > 800)
+		if(m_iLifeNowTime > 900)
 			m_iMoveStyle++;
 		break;
 	case 5:
 		m_iShootInterval = 9;
+
 		m_point.x = cos(m_ang + m_dang * m_iLifeNowTime) * m_rad + m_ox;
 		m_point.y = sin(m_ang + m_dang * m_iLifeNowTime) * m_rad + m_oy;
 		m_rad--;
-		if(m_iLifeNowTime > 1000)
+		if(m_iLifeNowTime > 1200)
 			m_iMoveStyle++;
 		break;
 	case 6:
 		m_iShootInterval = 1000;
+
+		m_cPoint = m_point;
+
+		m_cPoint.x += m_objWidth / 2 - 9;
+		m_cPoint.y += m_objHeight / 2;
+
 		if((m_iLifeNowTime % 10) == 0)
 		{
-			for(int angCnt = 0; angCnt < 20; angCnt ++)
+			for(int angCnt = 0; angCnt < ((m_iLifeNowTime - 1000) / 10); angCnt ++) // 점점 커지는 부채꼴
 			{
 				p.x = cos(m_ang + m_dang * angCnt) * 100 + m_point.x;
 				p.y = sin(m_ang + m_dang * angCnt) * 100 + m_point.y;
-				m_arEB->Add(new EpEnemyBullet());
-				m_arEB->GetAt(m_arEB->GetSize() - 1)->GiveAtt(m_iMissileSpeed, p, m_point, m_backDC);
+				m_enemyBullet->Add(new EpEnemyBullet());
+				m_enemyBullet->GetAt(m_enemyBullet->GetSize() - 1)->GiveAtt(m_iMissileSpeed, p, m_cPoint, m_backDC);
 			}
 		}
 		if(m_iLifeNowTime > 1200)
@@ -138,19 +168,25 @@ void EpBoss::Move()
 		static float fRot = 0;
 
 		m_iShootInterval = 1000;
+
+		m_cPoint = m_point;
+
+		m_cPoint.x += m_objWidth / 2 - 9;
+		m_cPoint.y += m_objHeight / 2;
+
 		if((m_iLifeNowTime % 10) == 0)
 		{
-			for(int angCnt = 0; angCnt < 20; angCnt ++)
+			for(int angCnt = 0; angCnt < 50; angCnt ++)
 			{
 				p.x = cos(m_ang + fRot + m_dang * angCnt) * 100 + m_point.x;
 				p.y = sin(m_ang + fRot + m_dang * angCnt) * 100 + m_point.y;
-				m_arEB->Add(new EpEnemyBullet());
-				m_arEB->GetAt(m_arEB->GetSize() - 1)->GiveAtt(m_iMissileSpeed, p, m_point, m_backDC);
+				m_enemyBullet->Add(new EpEnemyBullet());
+				m_enemyBullet->GetAt(m_enemyBullet->GetSize() - 1)->GiveAtt(m_iMissileSpeed, p, m_cPoint, m_backDC);
 			}
 			fRot += 0.2f;
 		}
 		
-		if(m_iLifeNowTime > 1400)
+		if(m_iLifeNowTime > 2000)
 		{	m_iMoveStyle = 2;
 			m_iLifeNowTime = 300;
 		}
@@ -160,9 +196,15 @@ void EpBoss::Move()
 
 }
 
-
-short EpBoss::DiminishPersistence()
+short EpBoss::Hit()
 {
-	return (--m_iPersistence);
-	
+	return (--m_bossHP);
+}
+
+bool EpBoss::CheckHP()
+{
+	if (m_bossHP < 5)
+		return true;
+	else
+		return false;
 }

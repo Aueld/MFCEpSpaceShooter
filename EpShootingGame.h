@@ -16,13 +16,13 @@ class CShootingGameApp : public CWinApp
 public:
 	CShootingGameApp();
 
-	public:
 	virtual BOOL InitInstance();
 	//}}AFX_VIRTUAL
 
 	afx_msg void OnAppAbout();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
 };
 
 #endif

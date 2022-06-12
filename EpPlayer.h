@@ -13,18 +13,21 @@ public:
 	EpPlayer();
 	virtual ~EpPlayer();
 	
-	POINT	m_point;
-	float	m_MyVelocityX, m_MyVelocityY;
-	short	m_bombCnt;
+	POINT m_point;
+	float m_MyVelocityX, m_MyVelocityY;
+	short m_bombCnt;
+	int m_HP;
+	bool m_check;
 
-	void	GiveAtt(long x, long y, CDC* backDC);
-	void	CheckAndDraw(POINT mp);
-	void	ChgToCrashedStat();
+	void GiveAtt(long x, long y, CDC* backDC);
+	void CheckAndDraw(POINT mp);
+	void ChgToCrashedStat();
+	void Init();
 private:
-	CDC		*m_backDC,m_memDC;
+	CDC	*m_backDC,m_memDC;
 	CBitmap m_bmpM, m_bmpCrashed, m_bmpCrashed1;
-	short	m_mpWidth, m_mpHeight;
-	void	Draw();
+	short m_mpWidth, m_mpHeight;
+	void Draw();
 };
 
 #endif

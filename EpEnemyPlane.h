@@ -13,14 +13,14 @@ public:
 	EpEnemyPlane();
 	virtual ~EpEnemyPlane();
 
-	void	GiveAtt(int iStyle, long x, long y, CDC* backDC, CArray<EpEnemyBullet*, EpEnemyBullet*> *arEB);
-	short	CheckAndDraw(POINT mp);
+	void GiveAtt(int iStyle, long x, long y, CDC* backDC, CArray<EpEnemyBullet*, EpEnemyBullet*> *arEB);
+	short CheckAndDraw(POINT mp);
 
 private:
-	short	m_iMoveStyle;
-	int		m_iShootInterval, m_iLifeMax, m_iLifeNowTime, m_rad;
-	long	m_ox, m_oy;
-	float	m_ang, m_dang;
+	short m_iMoveStyle;
+	int m_iShootInterval, m_iLifeMax, m_iLifeNowTime, m_rad;
+	long m_ox, m_oy;
+	float m_ang, m_dang;
 
 	void	Move();
 };

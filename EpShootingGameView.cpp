@@ -108,23 +108,23 @@ void EpShootingGameView::OnInitialUpdate()
 	
 	MemDC.CreateCompatibleDC(&dc);
 
-	//Initialize  myplane's position
-	m_mp.GiveAtt(m_rect.Width() / 2,m_rect.Height() / 2, &BackDC);
+	//Initialize  플레이어
+	m_player.GiveAtt(m_rect.Width() / 2,m_rect.Height() / 2, &BackDC);
 
-	//Initialize scenario
-	m_clSM.m_arE = &m_arE;
+	//Initialize 시나리오
+	m_clSM.m_arE = &m_enemyObj;
 	m_clSM.m_backDC = &BackDC;
-	m_clSM.m_arEB = &m_arEB;
+	m_clSM.m_arEB = &m_enemyBullet;
 
-	//Initialize enemy
-	m_arE.RemoveAll();
+	//Initialize 적
+	m_enemyObj.RemoveAll();
 	m_iEnemyGenMode = 0;
 
-	//Initialize enemy's bullets
-	m_arEB.RemoveAll();
+	//Initialize  적 탄환
+	m_enemyBullet.RemoveAll();
 
 	//Initialize bullets 
-	m_arB.RemoveAll();
+	m_playerBullet.RemoveAll();
 
 	
 	//Initialize game parameter
@@ -134,6 +134,9 @@ void EpShootingGameView::OnInitialUpdate()
 	m_bGameOver = FALSE;
 	bGameOverMsg = FALSE;
 	m_RBtnDnFlg = FALSE;
+
+	//Set Score
+	m_score = 0;
 
 	//Set timer
 	m_timeCnt = 0;
@@ -151,10 +154,12 @@ void EpShootingGameView::AddEnemy()
 		m_iEnemyGenMode = 0;
 }
 */
+
+// 게임 타이머
 void EpShootingGameView::OnTimer(UINT nIDEvent) 
 {
 	int i;
-                
+
 	CClientDC dc(this);
 	GetClientRect(&m_rect);
 	
@@ -162,17 +167,19 @@ void EpShootingGameView::OnTimer(UINT nIDEvent)
 	BackDC.SelectObject(&m_bmpBackDC);
 
 	//Clear screen
-	CBrush brush(RGB(255,255,255));
+	CBrush brush(RGB(255, 255, 255));
 	BackDC.FillRect(m_rect, &brush );
 
-	//플레이어
-	m_mp.CheckAndDraw(m_oldMousePos);
+	VTextUI();
 
-	//적
+	//플레이어
+	m_player.CheckAndDraw(m_oldMousePos);
+
 	MemDC.SelectObject(&m_bmpE);
-	for(i = 0; i < m_arE.GetSize(); i++)
+
+	for(i = 0; i < m_enemyObj.GetSize(); i++)
 	{
-		short flg = m_arE[i]->CheckAndDraw(m_mp.m_point);
+		short flg = m_enemyObj[i]->CheckAndDraw(m_player.m_point);
 		switch(flg)
 		{
 		case -1:
@@ -180,37 +187,48 @@ void EpShootingGameView::OnTimer(UINT nIDEvent)
 			m_bGameOver = TRUE;
 			break;
 		case 1:
-			m_arE[i]->~EpEnemyObj();
-			m_arE.RemoveAt(i);
+			if (m_enemyObj[i]->m_check) {
+				GameEnd();
+			}
+
+			m_enemyObj[i]->~EpEnemyObj();
+			m_enemyObj.RemoveAt(i);
 			i--;
+			
+			if(!m_bGameOver)
+				m_score += 10;
 			break;
 		}
 	}
 
 	//플레이어 탄환
-	for(i = m_arB.GetSize() - 1; i >=0 ; i--)
+	for(i = m_playerBullet.GetSize() - 1; i >=0 ; i--)
 	{
-		if(m_arB[i]->CheckAndDraw() == 1)
+		if(m_playerBullet[i]->CheckAndDraw() == 1)
 		{
-			m_arB[i]->~EpPlayerBullet();
-			m_arB.RemoveAt(i);
+			m_playerBullet[i]->~EpPlayerBullet();
+			m_playerBullet.RemoveAt(i);
 			i--;
+
 		}
 	}
 
 	//적 탄환
-	for(i = m_arEB.GetSize() - 1; i >=0 ; i--)
+	for(i = m_enemyBullet.GetSize() - 1; i >=0 ; i--)
 	{
-		switch(m_arEB[i]->CheckAndDraw(m_mp.m_point))
+		switch(m_enemyBullet[i]->CheckAndDraw(m_player.m_point))
 		{
 		case -1:
 			//KillTimer(0);
 			m_bGameOver = TRUE;
 			break;
 		case 1:
-			m_arEB[i]->~EpEnemyBullet();
-			m_arEB.RemoveAt(i);
+			m_enemyBullet[i]->~EpEnemyBullet();
+			m_enemyBullet.RemoveAt(i);
 			i--;
+
+			if (!m_bGameOver)
+				m_score += 1;
 		}
 	}
 
@@ -219,39 +237,121 @@ void EpShootingGameView::OnTimer(UINT nIDEvent)
 	
 	if(m_RBtnDnFlg)
 	{
-		if(m_arB.GetSize()<MAX_BULLETS)
+		if(m_playerBullet.GetSize()<MAX_BULLETS)
 		{
 			EpPlayerBullet *bullet = new EpPlayerBullet();
-			POINT pos = m_mp.m_point;
-			bullet->GiveAtt(pos, &BackDC, &m_arE);
-			m_arB.Add(bullet);
+			POINT pos = m_player.m_point;
+			bullet->GiveAtt(pos, &BackDC, &m_enemyObj);
+			m_playerBullet.Add(bullet);
 		}
 	}
 	
 	//게임 오버시
 	if(m_bGameOver)
 	{
-		m_mp.ChgToCrashedStat();
+		m_player.ChgToCrashedStat();
 		GameOver();
 	}
+
 	m_timeCnt++;
 	m_clSM.Unfold(m_timeCnt);
 	SetFocus();
 	CView::OnTimer(nIDEvent);
 }
 
+void EpShootingGameView::VTextUI()
+{
+	//CFont font;
+	//font.CreateFont(400, _T("고딕"));
+	//BackDC.SelectObject(&font);
+
+	if (m_timeCnt < 200)
+		BackDC.TextOutA(m_rect.Width() / 2 - 200, 400, _T("조작 설명\n 마우스 좌클릭 : 이동 토글, 우클릭 : 자동 발사 토글"));
+	if (m_timeCnt > 200 && m_timeCnt < 250)
+		BackDC.TextOutA(m_rect.Width() / 2 - 150, 400, _T("재미있게 플레이 해주시면 감사합니다 :)"));
+
+
+
+	score.Format(_T("점수 : %d"), m_score);
+	//score += (m_score);
+
+	BackDC.TextOutA(1000, 100, score);
+
+}
+
+void EpShootingGameView::reStartGame()
+{
+	//CBrush brush(RGB(255, 255, 255));
+	//BackDC.FillRect(m_rect, &brush);
+
+	m_player.CheckAndDraw(m_oldMousePos);
+
+	m_iEnemyGenMode = 0;
+
+	m_enemyObj.RemoveAll();
+	m_enemyBullet.RemoveAll();
+	m_playerBullet.RemoveAll();
+
+	m_player.m_check = false;
+	m_player.Init();
+
+	m_bGameOver = FALSE;
+	m_MoveFlag = FALSE;
+	m_oldMousePos.x = m_rect.Width() / 2;
+	m_oldMousePos.y = m_rect.Height() / 2;
+
+	bGameOverMsg = FALSE;
+	m_RBtnDnFlg = FALSE;
+
+	m_score = 0;
+	m_timeCnt = 0;
+	m_clSM.Unfold(m_timeCnt);
+	SetFocus();
+}
+
 void EpShootingGameView::GameOver()
 {
-	
-	if	(bGameOverMsg)	
+	m_RBtnDnFlg = FALSE;
+
+	m_player.m_check = true;
+
+	if (bGameOverMsg)
 		return;
+
 	bGameOverMsg = TRUE;
 
-	if (AfxMessageBox("게임 오버",MB_YESNO) == IDYES)
-		(CMainFrame*)GetParentFrame( )->PostMessage(WM_COMMAND,ID_FILE_NEW);	
+	end_text.Format(_T(" 게임 오버 \n 최종 점수 : %d 점\n 재시작 \"예\", 게임 종료 \"아니오\""), m_score);
+
+	if (AfxMessageBox(end_text, MB_YESNO) == IDYES)
+	{
+		reStartGame();
+	}
 	else
 	{
 		(CMainFrame*)GetParentFrame( )->PostMessage(WM_COMMAND,ID_APP_EXIT);	
+	}
+}
+
+void EpShootingGameView::GameEnd()
+{
+	m_RBtnDnFlg = FALSE;
+
+	m_player.m_check = true;
+
+	if (bGameOverMsg)
+		return;
+
+	bGameOverMsg = TRUE;
+
+	end_text.Format(_T(" 게임 클리어 \n 최종 점수 : %d 점\n"), m_score);
+
+	if (AfxMessageBox(end_text, MB_YESNO) == IDYES)
+	{
+		(CMainFrame*)GetParentFrame()->PostMessage(WM_COMMAND, ID_APP_EXIT);
+	}
+	else
+	{
+		(CMainFrame*)GetParentFrame()->PostMessage(WM_COMMAND, ID_APP_EXIT);
 	}
 }
 
@@ -265,12 +365,12 @@ BOOL EpShootingGameView::PreTranslateMessage(MSG* pMsg)
 	}
 	if(pMsg->message == WM_KEYDOWN &&  pMsg->wParam == VK_SPACE)
 	{
-		if(m_arB.GetSize()<MAX_BULLETS)
+		if(m_playerBullet.GetSize()<MAX_BULLETS)
 		{
 			EpPlayerBullet *bullet = new EpPlayerBullet();
-			POINT pos = m_mp.m_point;
-			bullet->GiveAtt(pos, &BackDC, &m_arE);
-			m_arB.Add(bullet);
+			POINT pos = m_player.m_point;
+			bullet->GiveAtt(pos, &BackDC, &m_enemyObj);
+			m_playerBullet.Add(bullet);
 		}
 	}
 
@@ -280,39 +380,46 @@ BOOL EpShootingGameView::PreTranslateMessage(MSG* pMsg)
 
 void EpShootingGameView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) 
 {
-	switch(nChar)
-	{
-	case VK_NUMPAD4:
-	case VK_LEFT:
-		m_mp.m_MyVelocityX--;
-		break;
-	case VK_NUMPAD6:
-	case VK_RIGHT:
-		m_mp.m_MyVelocityX++;
-		break;
-	case VK_NUMPAD8:
-	case VK_UP:
-		m_mp.m_MyVelocityY--;
-		break;
-	case VK_NUMPAD2:
-	case VK_DOWN:
-		m_mp.m_MyVelocityY++;
-		break;
-	}	
+	// 키보드 조작
+
+	//switch(nChar)
+	//{
+	//case VK_NUMPAD4:
+	//case VK_LEFT:
+	//	m_mp.m_MyVelocityX--;
+	//	break;
+	//case VK_NUMPAD6:
+	//case VK_RIGHT:
+	//	m_mp.m_MyVelocityX++;
+	//	break;
+	//case VK_NUMPAD8:
+	//case VK_UP:
+	//	m_mp.m_MyVelocityY--;
+	//	break;
+	//case VK_NUMPAD2:
+	//case VK_DOWN:
+	//	m_mp.m_MyVelocityY++;
+	//	break;
+	//}	
 
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
 void EpShootingGameView::OnLButtonDown(UINT nFlags, CPoint point) 
 {
-	m_MoveFlag = TRUE;
+	//m_MoveFlag = TRUE;
 	
 	CView::OnLButtonDown(nFlags, point);
 }
 
 void EpShootingGameView::OnLButtonUp(UINT nFlags, CPoint point) 
 {
-	m_MoveFlag = FALSE;
+	//m_MoveFlag = FALSE;
+
+	if (!m_MoveFlag)
+		m_MoveFlag = TRUE;
+	else if (m_MoveFlag)
+		m_MoveFlag = FALSE;
 	
 	CView::OnLButtonUp(nFlags, point);
 }
@@ -328,12 +435,18 @@ void EpShootingGameView::OnMouseMove(UINT nFlags, CPoint point)
 
 void EpShootingGameView::OnRButtonDown(UINT nFlags, CPoint point) 
 {
-	m_RBtnDnFlg = TRUE;
+	//m_RBtnDnFlg = TRUE;
+
 	CView::OnRButtonDown(nFlags, point);
 }
 
 void EpShootingGameView::OnRButtonUp(UINT nFlags, CPoint point) 
 {
-	m_RBtnDnFlg = FALSE;
+	//m_RBtnDnFlg = FALSE;
+
+	if (!m_RBtnDnFlg)
+		m_RBtnDnFlg = TRUE;
+	else if (m_RBtnDnFlg)
+		m_RBtnDnFlg = FALSE;
 	CView::OnRButtonUp(nFlags, point);
 }

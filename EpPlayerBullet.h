@@ -14,17 +14,17 @@ public:
 	EpPlayerBullet();
 	virtual ~EpPlayerBullet();
 
-	void	GiveAtt(POINT p, CDC* backDC, CArray<EpEnemyObj*, EpEnemyObj*> *arE);
-	short	CheckAndDraw();
-	POINT	m_point;
+	void GiveAtt(POINT p, CDC* backDC, CArray<EpEnemyObj*, EpEnemyObj*> *arE);
+	short CheckAndDraw();
+	POINT m_point;
 
 private:
-	CDC		*m_backDC,m_memDC;
+	CDC	*m_backDC,m_memDC;
 	CBitmap m_bmpB;
 	CArray<EpEnemyObj*, EpEnemyObj*> *m_arE;
 
-	void	Draw();
-	void	Move();
+	void Draw();
+	void Move();
 };
 
 #endif

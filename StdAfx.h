@@ -15,8 +15,8 @@
 #include <afxcmn.h>
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
-#define MAX_BULLETS		40
-#define SCREENWIDTH		1200
-#define SCREENHEIGHT	800
+#define MAX_BULLETS	40
+#define SCREENWIDTH	1200
+#define SCREENHEIGHT 800
 
 #endif

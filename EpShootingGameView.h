@@ -19,30 +19,30 @@ protected:
 	EpShootingGameView();
 	DECLARE_DYNCREATE(EpShootingGameView)
 	CScenarioManager m_clSM;
-
-	void	GameOver();
+	
+	void VTextUI();
+	void reStartGame();
+	void GameOver();
+	void GameEnd();
+	
 public:
 	// player
-	EpPlayer m_mp;
+	EpPlayer m_player;
 	CPoint m_oldMousePos;
+	CArray<EpPlayerBullet*,EpPlayerBullet*> m_playerBullet;
 	
-	// bullet
-	CArray<EpPlayerBullet*,EpPlayerBullet*> m_arB;
-	
-	// enemy
-	CArray<EpEnemyObj*, EpEnemyObj*> m_arE;
+	// enemey
+	CArray<EpEnemyObj*, EpEnemyObj*> m_enemyObj;
+	CArray<EpEnemyBullet*, EpEnemyBullet*> m_enemyBullet;
 
-	//enemy's bullets
-	CArray<EpEnemyBullet*, EpEnemyBullet*> m_arEB;
-
-	// screen
+	// View
 	CDC MemDC,BackDC;
 	CBitmap m_bmpM, m_bmpE, m_bmpB, m_bmpEB, m_bmpBackDC, m_bmpBackground;
 
-	// game 
 	BOOL m_MoveFlag, m_RBtnDnFlg, m_bGameOver, bGameOverMsg;
 	CRect m_rect;
-	int m_iEnemyGenMode;
+	CString score, end_text;
+	int m_iEnemyGenMode, m_score;
 	long m_timeCnt;
 	
 public:
@@ -53,10 +53,12 @@ public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual void OnInitialUpdate();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+
 	protected:
 	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
 	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
 	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
+
 	//}}AFX_VIRTUAL
 
 public:
